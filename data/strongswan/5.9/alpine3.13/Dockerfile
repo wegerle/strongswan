@@ -13,9 +13,10 @@ RUN apk --update add \
   iptables-dev \
   openssl \
   openssl-dev \
-  wget \
-  && wget -O https://download.strongswan.org/strongswan-${STRONGSWAN}.tar.gz | tar xfvz - \ 
-  && cd strongswan-${STRONGSWAN} \
+  && mkdir /tmp/strongswan-${STRONGSWAN} \
+  && curl -Lo /tmp/strongswan-${STRONGSWAN}.tar.bz2 https://download.strongswan.org/strongswan-${STRONGSWAN}.tar.bz2 \
+  && tar --strip-components=1 -C /tmp/strongswan-${STRONGSWAN} -xjf /tmp/strongswan-${STRONGSWAN}.tar.bz2
+  && cd /tmp/strongswan-${STRONGSWAN} \
   && ./configure --prefix=/usr \
     --sysconfdir=/etc \
     --libexecdir=/usr/lib \
