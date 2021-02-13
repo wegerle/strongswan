@@ -53,7 +53,7 @@ RUN apk --update add \
     --disable-sha1 \
     --disable-sha2 \
     --disable-static \
-  && mkae \
+  && make \
   && make install \
   && cd .. && rm -rf /tmp/strongswan-${STRONGSWAN} \
   && apk del  build-base curl-dev openssl-dev \
