@@ -59,3 +59,5 @@ RUN apk --update add \
   && apk del  build-base curl-dev openssl-dev \
   && rm -rf /var/chace/apk/*
    
+ENTRYPOINT ["/usr/sbin/ipsec"]
+CMD ["start", "--nofork --debug"]
