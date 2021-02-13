@@ -54,8 +54,7 @@ RUN apk --update add \
     --disable-static \
   && mkae \
   && make install \
-  && cd .. && rm -rf /tmp/strongswan-${STRONGSWAN}
+  && cd .. && rm -rf /tmp/strongswan-${STRONGSWAN} \
   && apk del  build-base curl-dev openssl-dev \
   && rm -rf /var/chace/apk/*
-  
-  
+   
