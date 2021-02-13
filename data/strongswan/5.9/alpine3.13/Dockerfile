@@ -15,7 +15,7 @@ RUN apk --update add \
   openssl-dev \
   && mkdir /tmp/strongswan-${STRONGSWAN} \
   && curl -Lo /tmp/strongswan-${STRONGSWAN}.tar.bz2 https://download.strongswan.org/strongswan-${STRONGSWAN}.tar.bz2 \
-  && tar --strip-components=1 -C /tmp/strongswan-${STRONGSWAN} -xjf /tmp/strongswan-${STRONGSWAN}.tar.bz2
+  && tar --strip-components=1 -C /tmp/strongswan-${STRONGSWAN} -xjf /tmp/strongswan-${STRONGSWAN}.tar.bz2 \
   && cd /tmp/strongswan-${STRONGSWAN} \
   && ./configure --prefix=/usr \
     --sysconfdir=/etc \
