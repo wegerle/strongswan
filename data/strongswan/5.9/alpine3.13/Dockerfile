@@ -21,8 +21,6 @@ RUN apk --update add \
     --sysconfdir=/etc \
     --libexecdir=/usr/lib \
     --with-ipsecdir=/usr/lib/strongswan \
-    --enable-af-alg \
-    --enable-ccm \
     --enable-aesni \
     --enable-chapoly \
     --enable-cmd \
@@ -58,6 +56,9 @@ RUN apk --update add \
   && cd .. && rm -rf /tmp/strongswan-${STRONGSWAN} \
   && apk del  build-base curl-dev openssl-dev \
   && rm -rf /var/chace/apk/*
+  
+EXPOSE 500/udp \
+       4500/udp
    
 ENTRYPOINT ["/usr/sbin/ipsec"]
 CMD ["start", "--nofork --debug"]
