@@ -6,7 +6,7 @@ ENV STRONGSWAN 5.9.2
 # Update image and install additional packages
 #---------------------------------------------
 RUN \
-  DEV_PACKAGES="build-base curl-dev openssl-dev"
+  DEV_PACKAGES="build-base curl-dev openssl-dev" && \
   apk --no-cache add \
   bash \
   ca-certificates \
