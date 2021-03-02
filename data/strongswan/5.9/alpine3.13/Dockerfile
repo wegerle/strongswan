@@ -1,23 +1,27 @@
 FROM alpine:3.13
 
-ENV STRONGSWAN 5.9.1
+ENV STRONGSWAN 5.9.2
 
-RUN apk --update add \
-  build-base \
+#---------------------------------------------
+# Update image and install additional packages
+#---------------------------------------------
+RUN \
+  DEV_PACKAGES="build-base curl-dev openssl-dev"
+  apk --no-cache add \
   bash \
   ca-certificates \
   curl \
-  curl-dev \
   ip6tables \
   iproute2 \
   iptables-dev \
   openssl \
-  openssl-dev \
-  && mkdir /tmp/strongswan-${STRONGSWAN} \
-  && curl -Lo /tmp/strongswan-${STRONGSWAN}.tar.bz2 https://download.strongswan.org/strongswan-${STRONGSWAN}.tar.bz2 \
-  && tar --strip-components=1 -C /tmp/strongswan-${STRONGSWAN} -xjf /tmp/strongswan-${STRONGSWAN}.tar.bz2 \
-  && cd /tmp/strongswan-${STRONGSWAN} \
-  && ./configure --prefix=/usr \
+  pwgen \
+  $DEV_PACKAGES && \
+  mkdir /tmp/strongswan-${STRONGSWAN} && \
+  curl -Lo /tmp/strongswan-${STRONGSWAN}.tar.bz2 https://download.strongswan.org/strongswan-${STRONGSWAN}.tar.bz2 && \
+  tar --strip-components=1 -C /tmp/strongswan-${STRONGSWAN} -xjf /tmp/strongswan-${STRONGSWAN}.tar.bz2 && \
+  cd /tmp/strongswan-${STRONGSWAN} && \
+  ./configure --prefix=/usr \
     --sysconfdir=/etc \
     --libexecdir=/usr/lib \
     --with-ipsecdir=/usr/lib/strongswan \
@@ -50,15 +54,25 @@ RUN apk --update add \
     --disable-rc2 \
     --disable-sha1 \
     --disable-sha2 \
-    --disable-static \
-  && make \
-  && make install \
-  && cd .. && rm -rf /tmp/strongswan-${STRONGSWAN} \
-  && apk del  build-base curl-dev openssl-dev \
-  && rm -rf /var/chace/apk/*
-  
+    --disable-static && \
+  \
+  make && \
+  make install && \
+  \
+  cd .. && rm -rf /tmp/strongswan-${STRONGSWAN} && \
+  apk del  $DEV_PACKAGES
+ 
+#---------------------------------------------
+# Expose Ports
+#---------------------------------------------
+# 500/udp  - Internet Key Exchange (IKE)
+# 4500/udp - NAT Traversal
+#---------------------------------------------
 EXPOSE 500/udp \
        4500/udp
-   
-ENTRYPOINT ["/usr/sbin/ipsec"]
-CMD ["start", "--nofork", "--debug"]
+
+COPY *.sh /
+RUN chmod 755 /*.sh
+
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["run"]
