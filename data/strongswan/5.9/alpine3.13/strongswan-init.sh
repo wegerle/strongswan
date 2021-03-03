@@ -1,28 +1,16 @@
 #!/bin/bash
 CONFIG_DIR=/etc/ipsec.d
 
-if [ ! -n "${STRONGSWAN_CA_CN}" ]; then
-  echo "The value for STRONGSWAN_CA_CN is missing."
-  exit 0
-fi
 if [ ! -n "${STRONGSWAN_CA_C}" ]; then
   echo "The value for STRONGSWAN_CA_C is missing."
   exit 0
 fi
+if [ ! -n "${STRONGSWAN_CA_CN}" ]; then
+  echo "The value for STRONGSWAN_CA_CN is missing."
+  exit 0
+fi
 if [ ! -n "${STRONGSWAN_CA_O}" ]; then
   echo "The value for STRONGSWAN_CA_O is missing."
-  exit 0
-fi
-if [ ! -n "${STRONGSWAN_CA_OU}" ]; then
-  echo "The value for STRONGSWAN_CA_OU is missing."
-  exit 0
-fi
-if [ ! -n "${STRONGSWAN_CA_L}" ]; then
-  echo "The value for STRONGSWAN_CA_L is missing."
-  exit 0
-fi
-if [ ! -n "${STRONGSWAN_CA_ST}" ]; then
-  echo "The value for STRONGSWAN_CA_ST is missing."
   exit 0
 fi
 if [ ! -n "${STRONGSWAN_CA_SAN}" ]; then
@@ -81,11 +69,11 @@ if [ -n "${STRONGSWAN_CA_KEY_TYPE}" ]; then
   fi
   
   pki --self --in $CONFIG_DIR/private/caKey.pem \
-      --dn "CN=${STRONGSWAN_CA_CN}, C=${STRONGSWAN_CA_C}, O=${STRONGSWAN_CA_O}, OU=${STRONGSWAN_CA_OU}, L=${STRONGSWAN_CA_L}, ST=${STRONGSWAN_CA_ST}" \
+      --dn "C=${STRONGSWAN_CA_C}, CN=${STRONGSWAN_CA_CN}, O=${STRONGSWAN_CA_O}" \
       --ca --outform pem > $CONFIG_DIR/cacerts/caCert.pem
   
   pki --issue --in $CONFIG_DIR/private/serverKey.pem --type priv --cacert $CONFIG_DIR/cacerts/caCert.pem --cakey $CONFIG_DIR/private/caKey.pem \
-      --dn "CN=${STRONGSWAN_CA_CN}, C=${STRONGSWAN_CA_C}, O=${STRONGSWAN_CA_O}, OU=${STRONGSWAN_CA_OU}, L=${STRONGSWAN_CA_L}, ST=${STRONGSWAN_CA_ST}" \
+      --dn "C=${STRONGSWAN_CA_C}, CN=${STRONGSWAN_CA_CN}, O=${STRONGSWAN_CA_O}" \
       --san="${STRONGSWAN_CA_SAN}" --flag serverAuth --flag ikeIntermediate --outform pem > $CONFIG_DIR/certs/serverCert.pem
       
   echo "CA-Key/Cert and Server-Key/Cert are successfully created."

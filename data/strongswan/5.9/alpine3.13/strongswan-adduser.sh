@@ -69,7 +69,7 @@ if [ -n "$2" ]; then
     echo \"$CLIENT_CN\"" : EAP \""\"$CLIENT_PASSWORD\""\"" >> /etc/ipsec.secrets
     
     pki --issue --in $CONFIG_DIR/private/"$2"_Key.pem --type priv --cacert $CONFIG_DIR/cacerts/caCert.pem --cakey $CONFIG_DIR/private/caKey.pem \
-          --dn "C=${STRONGSWAN_CA_C}, O=${STRONGSWAN_CA_O}, CN=$CLIENT_CN" --san=\"$CLIENT_CN\" --outform pem > $CONFIG_DIR/certs/"$2"_Cert.pem
+          --dn "C=${STRONGSWAN_CA_C}, CN=$CLIENT_CN, O=${STRONGSWAN_CA_O}" --san=\"$CLIENT_CN\" --outform pem > $CONFIG_DIR/certs/"$2"_Cert.pem
           
     openssl pkcs12 -export -inkey $CONFIG_DIR/private/"$2"_Key.pem -in $CONFIG_DIR/certs/"$2"_Cert.pem -name \"$CLIENT_CN\" -certfile $CONFIG_DIR/cacerts/caCert.pem \
                    -caname \"$CA_CN\" -out $CONFIG_DIR/"$2"_Cert.p12 -p \"$CLIENT_PASSWORD\"

@@ -1,6 +1,7 @@
 FROM alpine:3.13
 
 ENV STRONGSWAN 5.9.2
+ENV DOCKER_RUNNING=1
 
 #---------------------------------------------
 # Update image and install additional packages
@@ -72,7 +73,13 @@ EXPOSE 500/udp \
        4500/udp
 
 COPY *.sh /
-RUN chmod 755 /*.sh
+RUN chmod 755 /*.sh && \
+
+    echo 'if [ "${DOCKER_RUNNING}" -eq 1 ]; then' >> /root/.bashrc && \
+    echo "  alias init='/entrypoint.sh strongswan-init'" >> /root/.bashrc && \
+    echo "  alias lsusers='/entrypoint.sh strongswan-lsusers'" >> /root/.bashrc && \
+    echo "  alias useradd='/entrypoint.sh strongswan-useradd'" >> /root/.bashrc && \
+    echo "fi" >> /root/.bashrc
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["run"]
