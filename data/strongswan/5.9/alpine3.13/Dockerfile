@@ -76,9 +76,9 @@ COPY *.sh /
 RUN chmod 755 /*.sh && \
 
     echo 'if [ "${DOCKER_RUNNING}" -eq 1 ]; then' >> /root/.bashrc && \
-    echo "  alias init='/entrypoint.sh strongswan-init'" >> /root/.bashrc && \
-    echo "  alias lsusers='/entrypoint.sh strongswan-lsusers'" >> /root/.bashrc && \
-    echo "  alias useradd='/entrypoint.sh strongswan-useradd'" >> /root/.bashrc && \
+    echo "  alias vpn-init='/entrypoint.sh strongswan-init'" >> /root/.bashrc && \
+    echo "  alias vpn-lsusers='/entrypoint.sh strongswan-lsusers'" >> /root/.bashrc && \
+    echo "  alias vpn-useradd='/entrypoint.sh strongswan-useradd'" >> /root/.bashrc && \
     echo "fi" >> /root/.bashrc
 
 ENTRYPOINT ["/entrypoint.sh"]
