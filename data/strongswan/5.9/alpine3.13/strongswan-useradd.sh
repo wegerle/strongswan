@@ -31,7 +31,7 @@ if [ -n "$1" ]; then
       echo "No Password entered"
       read -p "Should a password be generated? - (y/N)" generated
       if [ "$generated" = 'y' ]; then
-        CLIENT_PASSWORD=$(pwgen -sB 15 1﻿)
+        CLIENT_PASSWORD=$(pwgen -sB 15 1)
         echo "########################################"
         echo "#   The password for the ne user is:   #"
         echo "#                                      #"
