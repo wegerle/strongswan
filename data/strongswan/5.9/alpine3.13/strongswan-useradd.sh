@@ -22,6 +22,10 @@ fi
 #Cheick if Username is empty
 if [ -n "$1" ]; then
 
+  DOMAIN_NAME=$(echo ${STRONGSWAN_HOSTNAME} | cut -d "." -f2)
+  TLD=$(echo ${STRONGSWAN_HOSTNAME} | cut -d "." -f3)
+  CLIENT_CN="$1"@"$DOMAIN_NAME"."$TLD"
+
   #Check if username exist
   if [ ! $(grep -qw "$1" /etc/ipsec.secrets) ]; then
     #Check if password is empty
@@ -32,15 +36,6 @@ if [ -n "$1" ]; then
       read -p "Should a password be generated? - (y/N)" generated
       if [ "$generated" = 'y' ]; then
         CLIENT_PASSWORD=$(pwgen -sB 15 1)
-        echo "########################################"
-        echo "#   The password for the ne user is:   #"
-        echo "#                                      #"
-        echo "#            $CLIENT_PASSWORD           #"
-        echo "#                                      #"
-        echo "########################################"
-        
-        echo "$CLIENT_CN : EAP \"$CLIENT_PASSWORD\"" >> /etc/ipsec.secrets
-        
       else
         echo "Abort - No user added"
         CLIENT_EXIST=1
@@ -53,9 +48,6 @@ if [ -n "$1" ]; then
   fi
   
   if [ $CLIENT_EXIST -eq 0  ] && [ -n $CLIENT_PASSWORD ]; then  
-    DOMAIN_NAME=$(echo ${STRONGSWAN_HOSTNAME} | cut -d "." -f2)
-    TLD=$(echo ${STRONGSWAN_HOSTNAME} | cut -d "." -f3)
-    CLIENT_CN="$1"@"$DOMAIN_NAME"."$TLD"
     
     if [ "${STRONGSWAN_CLIENT_KEY_TYPE}" = 'RSA2048' ]; then
       pki --gen --type rsa --size 2048 --outform pem > $CONFIG_DIR/private/"$1"_Key.pem
@@ -74,14 +66,36 @@ if [ -n "$1" ]; then
       
     elif [ "${STRONGSWAN_CLIENT_KEY_TYPE}" = 'ECDSA521' ]; then
       pki --gen --type ecdsa --size 521 --outform pem > $CONFIG_DIR/private/"$1"_Key.pem
+      
+    else
+      echo "Abort - The value for STRONGSWAN_CLIENT_KEY_TYPE is wrong"
+      exit 0
     fi
     
+    if [ -f $CONFIG_DIR/private/"$1"_Key.pem ]; then
     
-    pki --issue --in $CONFIG_DIR/private/"$1"_Key.pem --type priv --cacert $CONFIG_DIR/cacerts/caCert.pem --cakey $CONFIG_DIR/private/caKey.pem \
-          --dn "C=${STRONGSWAN_CA_C}, CN=$CLIENT_CN, O=${STRONGSWAN_CA_O}" --san=\"$CLIENT_CN\" --outform pem > $CONFIG_DIR/certs/"$1"_Cert.pem
-          
-    openssl pkcs12 -export -inkey $CONFIG_DIR/private/"$1"_Key.pem -in $CONFIG_DIR/certs/"$1"_Cert.pem -name \"$CLIENT_CN\" -certfile $CONFIG_DIR/cacerts/caCert.pem \
-                   -caname \"$CA_CN\" -out $CONFIG_DIR/"$1".p12 -passout pass:$CLIENT_PASSWORD
+      echo "$CLIENT_CN : EAP \"$CLIENT_PASSWORD\"" >> /etc/ipsec.secrets
+      
+      pki --issue --in $CONFIG_DIR/private/"$1"_Key.pem --type priv --cacert $CONFIG_DIR/cacerts/caCert.pem --cakey $CONFIG_DIR/private/caKey.pem \
+            --dn "C=${STRONGSWAN_CA_C}, CN=$CLIENT_CN, O=${STRONGSWAN_CA_O}" --san=\"$CLIENT_CN\" --outform pem > $CONFIG_DIR/certs/"$1"_Cert.pem
+      
+      openssl pkcs12 -export -inkey $CONFIG_DIR/private/"$1"_Key.pem -in $CONFIG_DIR/certs/"$1"_Cert.pem -name \"$CLIENT_CN\" -certfile $CONFIG_DIR/cacerts/caCert.pem \
+                    -caname \"$CA_CN\" -out $CONFIG_DIR/"$1".p12 -passout pass:$CLIENT_PASSWORD
+                    
+      if [ "$generated" = 'y' ]; then
+        echo "#################################################"
+        echo "#  The password for the user and the pkcs12 is: #"
+        echo "#                                               #"
+        echo "#                $CLIENT_PASSWORD                #"
+        echo "#                                               #"
+        echo "#################################################"
+      else
+        echo "The user is added with the given password."
+        echo "This password is also used for the pkcs12 file."
+      fi
+    else
+      echo "Abort - The private key for the client: $1 is missing."
+    fi
   fi
 else
   echo "The value for client username is missing."
