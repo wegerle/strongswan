@@ -74,7 +74,7 @@ if [ -n "$1" ]; then
     
     if [ -f $CONFIG_DIR/private/"$1"_Key.pem ]; then
       CLIENT_PASSWORD_BASE64=$(echo $CLIENT_PASSWORD | base64)
-      echo "$CLIENT_CN : EAP 0s\"$CLIENT_PASSWORD_BASE64\"" >> /etc/ipsec.secrets
+      echo "$CLIENT_CN : EAP \"0s$CLIENT_PASSWORD_BASE64\"" >> /etc/ipsec.secrets
       
       pki --issue --in $CONFIG_DIR/private/"$1"_Key.pem --type priv --cacert $CONFIG_DIR/cacerts/caCert.pem --cakey $CONFIG_DIR/private/caKey.pem \
             --dn "C=${STRONGSWAN_CA_C}, CN=$CLIENT_CN, O=${STRONGSWAN_CA_O}" --san=\"$CLIENT_CN\" --outform pem > $CONFIG_DIR/certs/"$1"_Cert.pem
@@ -83,16 +83,21 @@ if [ -n "$1" ]; then
                     -caname \"$CA_CN\" -out $CONFIG_DIR/"$1".p12 -passout pass:$CLIENT_PASSWORD
                     
       if [ "$generated" = 'y' ]; then
+        echo ""
         echo "#################################################"
         echo "#  The password for the user and the pkcs12 is: #"
         echo "#                                               #"
         echo "#                $CLIENT_PASSWORD                #"
         echo "#                                               #"
         echo "#################################################"
+        echo ""
       else
         echo "The user is added with the given password."
         echo "This password is also used for the pkcs12 file."
       fi
+      
+      /usr/sbin/ipsec reload
+      
     else
       echo "Abort - The private key for the client: $1 is missing."
     fi
