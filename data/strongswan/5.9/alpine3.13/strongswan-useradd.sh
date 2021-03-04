@@ -20,7 +20,7 @@ if [ ! -n "${STRONGSWAN_CLIENT_KEY_TYPE}" ]; then
 fi
 
 #Cheick if Username is empty
-if [ -n "$1" ]; then
+if [ -n "$1" ] && [ -f $CONFIG_DIR/cacerts/caCert.pem ] && [ -f $CONFIG_DIR/private/caKey.pem ]; then
 
   DOMAIN_NAME=$(echo ${STRONGSWAN_HOSTNAME} | cut -d "." -f2)
   TLD=$(echo ${STRONGSWAN_HOSTNAME} | cut -d "." -f3)
@@ -102,6 +102,8 @@ if [ -n "$1" ]; then
       echo "Abort - The private key for the client: $1 is missing."
     fi
   fi
+elif [ ! -f $CONFIG_DIR/cacerts/caCert.pem ] && [ ! -f $CONFIG_DIR/private/caKey.pem ]; then
+  echo "Abort - System is not initialized"
 else
   echo "The value for client username is missing."
   echo "Abort - No user added"

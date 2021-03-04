@@ -35,6 +35,9 @@ if [ -n "${STRONGSWAN_CA_KEY_TYPE}" ]; then
   
   if [ ! -f "/etc/ipsec.secrets" ]; then
     touch /etc/ipsec.secrets
+  fi
+  
+  if [ ! -f "$CONFIG_DIR/private/caKey.pem" ] &&  [ ! -f "$CONFIG_DIR/private/serverKey.pem" ]; then
     
     if [ "${STRONGSWAN_CA_KEY_TYPE}" = 'RSA2048' ]; then
       pki --gen --type rsa --size 2048 --outform pem > $CONFIG_DIR/private/caKey.pem
@@ -82,7 +85,7 @@ if [ -n "${STRONGSWAN_CA_KEY_TYPE}" ]; then
     /usr/sbin/ipsec reload
     
   else
-    echo "Abort - /etc/ipsec.secrets is not empty"
+    echo "Abort - The system is initialized"
   fi
 else
   echo "The value for STRONGSWAN_CA_KEY_TYPE is missing."
