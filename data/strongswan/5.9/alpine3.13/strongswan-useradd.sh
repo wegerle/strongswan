@@ -73,8 +73,8 @@ if [ -n "$1" ]; then
     fi
     
     if [ -f $CONFIG_DIR/private/"$1"_Key.pem ]; then
-    
-      echo "$CLIENT_CN : EAP \"$CLIENT_PASSWORD\"" >> /etc/ipsec.secrets
+      CLIENT_PASSWORD_BASE64=$(echo $CLIENT_PASSWORD | base64)
+      echo "$CLIENT_CN : EAP 0s\"$CLIENT_PASSWORD_BASE64\"" >> /etc/ipsec.secrets
       
       pki --issue --in $CONFIG_DIR/private/"$1"_Key.pem --type priv --cacert $CONFIG_DIR/cacerts/caCert.pem --cakey $CONFIG_DIR/private/caKey.pem \
             --dn "C=${STRONGSWAN_CA_C}, CN=$CLIENT_CN, O=${STRONGSWAN_CA_O}" --san=\"$CLIENT_CN\" --outform pem > $CONFIG_DIR/certs/"$1"_Cert.pem

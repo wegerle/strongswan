@@ -5,9 +5,10 @@ if [ "$1" = 'run' ]; then
     
 elif [ "$1" = 'strongswan-init' ]; then
   /strongswan-init.sh
+  /usr/sbin/ipsec reload
   
 elif [ "$1" = 'strongswan-lsusers' ]; then
-  grep -v '^#' /etc/ipsec.secrets | cut -d '"' -f1 | cut -d '.' -f3
+  /strongswan-lsusers.sh
   
 elif [ "$1" = 'strongswan-useradd' ]; then
   /strongswan-useradd.sh "$2" "$3" 
