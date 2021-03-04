@@ -13,8 +13,20 @@ if [ ! -n "${STRONGSWAN_CA_O}" ]; then
   echo "The value for STRONGSWAN_CA_O is missing."
   exit 0
 fi
-if [ ! -n "${STRONGSWAN_CA_SAN}" ]; then
-  echo "The value for STRONGSWAN_CA_SAN is missing."
+if [ ! -n "${STRONGSWAN_SERVER_C}" ]; then
+  echo "The value for STRONGSWAN_SERVER_C is missing."
+  exit 0
+fi
+if [ ! -n "${STRONGSWAN_SERVER_O}" ]; then
+  echo "The value for STRONGSWAN_SERVER_O is missing."
+  exit 0
+fi
+if [ ! -n "${STRONGSWAN_SERVER_CN}" ]; then
+  echo "The value for STRONGSWAN_SERVER_CN is missing."
+  exit 0
+fi
+if [ ! -n "${STRONGSWAN_SERVER_SAN}" ]; then
+  echo "The value for STRONGSWAN_SERVER_SAN is missing."
   exit 0
 fi
 
@@ -82,8 +94,8 @@ if [ -n "${STRONGSWAN_CA_KEY_TYPE}" ]; then
         --ca --outform pem > $CONFIG_DIR/cacerts/caCert.pem
     
     pki --issue --in $CONFIG_DIR/private/serverKey.pem --type priv --cacert $CONFIG_DIR/cacerts/caCert.pem --cakey $CONFIG_DIR/private/caKey.pem \
-        --dn "C=${STRONGSWAN_CA_C}, CN=${STRONGSWAN_CA_CN}, O=${STRONGSWAN_CA_O}" \
-        --san="${STRONGSWAN_CA_SAN}" --flag serverAuth --flag ikeIntermediate --outform pem > $CONFIG_DIR/certs/serverCert.pem
+        --dn "C=${STRONGSWAN_SERVER_C}, CN=${STRONGSWAN_SERVER_CN}, O=${STRONGSWAN_SERVER_O}" \
+        --san="${STRONGSWAN_SERVER_SAN}" --flag serverAuth --flag ikeIntermediate --outform pem > $CONFIG_DIR/certs/serverCert.pem
         
     echo ""
     echo "caKey, caCert, serverKey and serverCert are successfully created."
