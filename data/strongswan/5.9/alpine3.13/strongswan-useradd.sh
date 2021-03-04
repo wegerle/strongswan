@@ -19,7 +19,7 @@ if [ ! -n "${STRONGSWAN_CLIENT_KEY_TYPE}" ]; then
   exit 0
 fi
 
-#Cheick if Username is empty
+#Check if Username is empty or system in not initialized
 if [ -n "$1" ] && [ -f $CONFIG_DIR/cacerts/caCert.pem ] && [ -f $CONFIG_DIR/private/caKey.pem ]; then
 
   DOMAIN_NAME=$(echo ${STRONGSWAN_HOSTNAME} | cut -d "." -f2)
@@ -27,8 +27,8 @@ if [ -n "$1" ] && [ -f $CONFIG_DIR/cacerts/caCert.pem ] && [ -f $CONFIG_DIR/priv
   CLIENT_CN="$1"@"$DOMAIN_NAME"."$TLD"
 
   #Check if username exist
-  if [ ! $(grep -qw "$1" /etc/ipsec.secrets) ]; then
-    #Check if password is empty
+  if [ "$(grep -wo $1 /etc/ipsec.secrets)" != "$1" ]; then
+    #Check if password field is empty
     if [ -n "$2" ]; then
       CLIENT_PASSWORD=$2
     else
@@ -47,8 +47,9 @@ if [ -n "$1" ] && [ -f $CONFIG_DIR/cacerts/caCert.pem ] && [ -f $CONFIG_DIR/priv
     CLIENT_EXIST=1
   fi
   
+  #Check if user is not existing and password field is not empty
   if [ $CLIENT_EXIST -eq 0  ] && [ -n $CLIENT_PASSWORD ]; then  
-    
+    #Check if STRONGSWAN_CLIENT_KEY_TYPE has a allowed value
     if [ "${STRONGSWAN_CLIENT_KEY_TYPE}" = 'RSA2048' ]; then
       pki --gen --type rsa --size 2048 --outform pem > $CONFIG_DIR/private/"$1"_Key.pem
       
@@ -72,6 +73,7 @@ if [ -n "$1" ] && [ -f $CONFIG_DIR/cacerts/caCert.pem ] && [ -f $CONFIG_DIR/priv
       exit 0
     fi
     
+    #Check if private key is generated
     if [ -f $CONFIG_DIR/private/"$1"_Key.pem ]; then
       CLIENT_PASSWORD_BASE64=$(echo $CLIENT_PASSWORD | base64)
       echo "$CLIENT_CN : EAP \"0s$CLIENT_PASSWORD_BASE64\"" >> /etc/ipsec.secrets
@@ -81,7 +83,8 @@ if [ -n "$1" ] && [ -f $CONFIG_DIR/cacerts/caCert.pem ] && [ -f $CONFIG_DIR/priv
       
       openssl pkcs12 -export -inkey $CONFIG_DIR/private/"$1"_Key.pem -in $CONFIG_DIR/certs/"$1"_Cert.pem -name \"$CLIENT_CN\" -certfile $CONFIG_DIR/cacerts/caCert.pem \
                     -caname \"$CA_CN\" -out $CONFIG_DIR/"$1".p12 -passout pass:$CLIENT_PASSWORD
-                    
+      
+      #Print the password if is generated
       if [ "$generated" = 'y' ]; then
         echo ""
         echo "#################################################"
@@ -96,6 +99,7 @@ if [ -n "$1" ] && [ -f $CONFIG_DIR/cacerts/caCert.pem ] && [ -f $CONFIG_DIR/priv
         echo "This password is also used for the pkcs12 file."
       fi
       
+      #Reload the vpn to activate the new user
       /usr/sbin/ipsec reload
       
     else

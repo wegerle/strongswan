@@ -18,6 +18,7 @@ if [ ! -n "${STRONGSWAN_CA_SAN}" ]; then
   exit 0
 fi
 
+#Create the config folder if is missing
 if [ -n "${STRONGSWAN_CA_KEY_TYPE}" ]; then
   for dir in \
           "$CONFIG_DIR/aacerts" \
@@ -33,12 +34,14 @@ if [ -n "${STRONGSWAN_CA_KEY_TYPE}" ]; then
     fi
   done
   
+  #Create the ipsec.secrets file if is missing
   if [ ! -f "/etc/ipsec.secrets" ]; then
     touch /etc/ipsec.secrets
   fi
   
+  #Chei if the system is uninitialized
   if [ ! -f "$CONFIG_DIR/private/caKey.pem" ] &&  [ ! -f "$CONFIG_DIR/private/serverKey.pem" ]; then
-    
+    #Check if STRONGSWAN_CLIENT_KEY_TYPE has a allowed value
     if [ "${STRONGSWAN_CA_KEY_TYPE}" = 'RSA2048' ]; then
       pki --gen --type rsa --size 2048 --outform pem > $CONFIG_DIR/private/caKey.pem
       pki --gen --type rsa --size 2048 --outform pem > $CONFIG_DIR/private/serverKey.pem
@@ -68,6 +71,10 @@ if [ -n "${STRONGSWAN_CA_KEY_TYPE}" ]; then
       pki --gen --type ecdsa --size 521 --outform pem > $CONFIG_DIR/private/caKey.pem
       pki --gen --type ecdsa --size 521 --outform pem > $CONFIG_DIR/private/serverKey.pem
       echo ": ECDSA  serverKey.pem" >> /etc/ipsec.secrets
+      
+    else
+      echo "Abort - The value for STRONGSWAN_CLIENT_KEY_TYPE is wrong"
+      exit 0
     fi
     
     pki --self --in $CONFIG_DIR/private/caKey.pem \
