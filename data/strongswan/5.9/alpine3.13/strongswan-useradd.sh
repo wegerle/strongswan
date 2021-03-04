@@ -86,7 +86,7 @@ if [ -n "$1" ] && [ -f $CONFIG_DIR/cacerts/caCert.pem ] && [ -f $CONFIG_DIR/priv
             --dn "C=${STRONGSWAN_SERVER_C}, CN=$CLIENT_CN, O=${STRONGSWAN_SERVER_O}" --san=\"$CLIENT_CN\" --outform pem > $CONFIG_DIR/certs/"$1"_Cert.pem
       
       openssl pkcs12 -export -inkey $CONFIG_DIR/private/"$1"_Key.pem -in $CONFIG_DIR/certs/"$1"_Cert.pem -name \"$CLIENT_CN\" -certfile $CONFIG_DIR/cacerts/caCert.pem \
-                    -caname \"{$STRONGSWAN_CA_CN}\" -out $CONFIG_DIR/"$1".p12 -passout pass:$CLIENT_PASSWORD
+                    -caname \"${STRONGSWAN_CA_CN}\" -out $CONFIG_DIR/"$1".p12 -passout pass:$CLIENT_PASSWORD
       
       #Print the password if is generated
       if [ "$generated" = 'y' ]; then
