@@ -80,7 +80,7 @@ if [ -n "$1" ] && [ -f $CONFIG_DIR/cacerts/caCert.pem ] && [ -f $CONFIG_DIR/priv
     #Check if private key is generated
     if [ -f $CONFIG_DIR/private/"$1"_Key.pem ]; then
       CLIENT_PASSWORD_BASE64=$(echo $CLIENT_PASSWORD | base64)
-      echo "$CLIENT_CN : EAP \"0s$CLIENT_PASSWORD_BASE64\"" >> /etc/ipsec.secrets
+      echo "$CLIENT_CN : EAP \"$CLIENT_PASSWORD\"" >> /etc/ipsec.secrets
       
       pki --issue --in $CONFIG_DIR/private/"$1"_Key.pem --type priv --cacert $CONFIG_DIR/cacerts/caCert.pem --cakey $CONFIG_DIR/private/caKey.pem \
             --dn "C=${STRONGSWAN_SERVER_C}, CN=$CLIENT_CN, O=${STRONGSWAN_SERVER_O}" --san=\"$CLIENT_CN\" --outform pem > $CONFIG_DIR/certs/"$1"_Cert.pem
@@ -102,6 +102,11 @@ if [ -n "$1" ] && [ -f $CONFIG_DIR/cacerts/caCert.pem ] && [ -f $CONFIG_DIR/priv
         echo "The user is added with the given password."
         echo "This password is also used for the pkcs12 file."
       fi
+      
+      
+      chmod 640 $CONFIG_DIR/private/"$1"_Key.pem
+      chmod 640 $CONFIG_DIR/certs/"$1"_Cert.pem
+      chmod 644 $CONFIG_DIR/"$1".p12
       
       #Reload the vpn to activate the new user
       /usr/sbin/ipsec reload

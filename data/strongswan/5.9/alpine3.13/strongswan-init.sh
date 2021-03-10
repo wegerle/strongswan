@@ -89,13 +89,22 @@ if [ -n "${STRONGSWAN_CA_KEY_TYPE}" ]; then
       exit 0
     fi
     
+    
     pki --self --in $CONFIG_DIR/private/caKey.pem \
         --dn "C=${STRONGSWAN_CA_C}, CN=${STRONGSWAN_CA_CN}, O=${STRONGSWAN_CA_O}" \
         --ca --outform pem > $CONFIG_DIR/cacerts/caCert.pem
+        
+    
     
     pki --issue --in $CONFIG_DIR/private/serverKey.pem --type priv --cacert $CONFIG_DIR/cacerts/caCert.pem --cakey $CONFIG_DIR/private/caKey.pem \
         --dn "C=${STRONGSWAN_SERVER_C}, CN=${STRONGSWAN_SERVER_CN}, O=${STRONGSWAN_SERVER_O}" \
         --san="${STRONGSWAN_SERVER_SAN}" --flag serverAuth --flag ikeIntermediate --outform pem > $CONFIG_DIR/certs/serverCert.pem
+    
+    
+    chmod 640 $CONFIG_DIR/private/caKey.pem
+    chmod 640 $CONFIG_DIR/private/serverKey.pem
+    chmod 640 $CONFIG_DIR/cacerts/caCert.pem
+    chmod 640 $CONFIG_DIR/certs/serverCert.pem
         
     echo ""
     echo "caKey, caCert, serverKey and serverCert are successfully created."
