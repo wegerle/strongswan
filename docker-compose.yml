@@ -23,6 +23,8 @@ services:
       - ./config/ipsec.d:/etc/ipsec.d
     env_file:
       - ./strongswan.env
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
 
     networks:
       backend:
