@@ -1,6 +1,6 @@
 FROM alpine:3.14
 
-ENV STRONGSWAN 5.9.2
+ENV STRONGSWAN 5.9.3
 ENV DOCKER_RUNNING=1
 
 #---------------------------------------------
